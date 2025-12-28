@@ -2,10 +2,29 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Файловое хранилище</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>IliaBebebe's GitHub Storage</title>
+    
+    <!-- Apple Touch Icons для iOS -->
+    <link rel="apple-touch-icon" href="https://iliabebebe.github.io/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="https://iliabebebe.github.io/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://iliabebebe.github.io/apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="https://iliabebebe.github.io/apple-touch-icon-167x167.png">
+    
+    <!-- Мета-теги для PWA на iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GitHub Storage">
+    <meta name="apple-mobile-web-app-orientations" content="portrait">
+    
+    <!-- Мета-теги для PWA -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#2d5af1">
+    <link rel="manifest" href="https://iliabebebe.github.io/manifest.json">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
         * {
             margin: 0;
@@ -34,6 +53,20 @@
             color: var(--text-primary);
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+            /* Предотвращает выделение при тапе на iOS */
+        }
+
+        /* Стили для PWA на iOS */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: env(safe-area-inset-bottom);
+            }
+            
+            .header {
+                padding-top: calc(1.25rem + env(safe-area-inset-top));
+            }
         }
 
         .container {
@@ -93,6 +126,20 @@
             }
         }
 
+        .logo-link {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.2s ease;
+        }
+
+        .logo-link:hover {
+            opacity: 0.9;
+        }
+
+        .logo-text {
+            color: white;
+        }
+
         .stats {
             display: flex;
             gap: 1rem;
@@ -100,35 +147,52 @@
             padding: 0.75rem;
             border-radius: var(--radius);
             backdrop-filter: blur(10px);
-            justify-content: space-around;
+            justify-content: space-between;
+            min-width: 300px;
         }
 
         @media (min-width: 768px) {
             .stats {
-                padding: 0.75rem 1.25rem;
-                gap: 1.5rem;
+                padding: 0.75rem 1.5rem;
+                gap: 2rem;
+                min-width: 400px;
+                justify-content: space-between;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stats {
+                min-width: 450px;
+                gap: 2.5rem;
             }
         }
 
         .stat-item {
             text-align: center;
             flex: 1;
-            min-width: 0; /* Для корректного обрезания текста */
+            min-width: 0;
+            white-space: nowrap;
         }
 
         .stat-value {
             font-size: 1.125rem;
             font-weight: 700;
             margin-bottom: 2px;
-            white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         @media (min-width: 768px) {
             .stat-value {
                 font-size: 1.25rem;
                 margin-bottom: 0;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .stat-value {
+                font-size: 1.375rem;
             }
         }
 
@@ -236,6 +300,9 @@
             font-family: 'Inter', sans-serif;
             font-size: 0.8125rem;
             min-height: 40px;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         @media (min-width: 768px) {
@@ -322,6 +389,7 @@
             font-size: 0.8125rem;
             min-width: 160px;
             height: 40px;
+            cursor: pointer;
         }
 
         @media (min-width: 768px) {
@@ -429,6 +497,7 @@
             cursor: pointer;
             word-break: break-word;
             line-height: 1.4;
+            padding: 4px 0;
         }
 
         .file-name:hover {
@@ -494,6 +563,7 @@
             padding: 1rem;
             border-bottom: 1px solid var(--border-color);
             transition: background 0.2s ease;
+            cursor: pointer;
         }
 
         .mobile-file-item:hover {
@@ -566,6 +636,9 @@
             justify-content: center;
             gap: 6px;
             transition: all 0.2s ease;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
         }
 
         .mobile-action-btn:hover {
@@ -822,6 +895,7 @@
                 left: 20px;
                 right: 20px;
                 width: auto;
+                bottom: calc(20px + env(safe-area-inset-bottom));
             }
         }
 
@@ -955,6 +1029,28 @@
             padding: 8px 12px;
             font-size: 0.8125rem;
         }
+
+        /* Улучшения для тач-устройств */
+        @media (hover: none) and (pointer: coarse) {
+            .file-actions {
+                opacity: 1 !important;
+            }
+            
+            .btn:hover, .action-btn:hover, .mobile-action-btn:hover {
+                transform: none;
+            }
+            
+            .mobile-file-item:active {
+                background: var(--hover-color);
+            }
+        }
+
+        /* iOS Safari specific fixes */
+        @supports (-webkit-touch-callout: none) {
+            .modal-content {
+                padding-bottom: calc(1.5rem + env(safe-area-inset-bottom));
+            }
+        }
     </style>
 </head>
 <body>
@@ -963,7 +1059,8 @@
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-cloud"></i>
-                    <span>Cloud Storage</span>
+                    <a href="https://github.com/IliaBebebe" target="_blank" class="logo-link">IliaBebebe</a>
+                    <span class="logo-text">'s GitHub Storage</span>
                 </div>
                 <div class="stats">
                     <div class="stat-item">
@@ -1177,26 +1274,37 @@
                 }
             });
             
+            // Предотвращение стандартного контекстного меню на мобильных устройствах
+            document.addEventListener('contextmenu', (e) => {
+                if (window.innerWidth < 768) {
+                    e.preventDefault();
+                }
+            });
+            
             document.getElementById('sort-select').value = currentSort;
+            
+            // Обновление даты последнего обновления
+            updateLastUpdated();
         });
 
         // Загрузка списка файлов
         async function loadFiles(path = '/') {
             try {
                 showLoading();
-                const response = await fetch('https://api.github.com/repos/iliabebebe/iliabebebe.github.io/contents' + path);
+                const apiPath = path === '/' ? '' : path;
+                const response = await fetch('https://api.github.com/repos/iliabebebe/iliabebebe.github.io/contents' + apiPath);
                 
                 if (!response.ok) {
                     throw new Error('Не удалось загрузить файлы');
                 }
                 
                 const data = await response.json();
-                filesData = data;
+                filesData = Array.isArray(data) ? data : [data];
                 
                 sortFiles(currentSort);
                 updateUI();
                 updateBreadcrumbs(path);
-                updateStats(data);
+                updateStats(filesData);
                 hideLoading();
             } catch (error) {
                 console.error('Ошибка:', error);
@@ -1321,18 +1429,21 @@
             // Desktop version
             desktopList.innerHTML = filesData.map(file => {
                 const isFolder = file.type === 'dir';
-                const formattedDate = formatDate(file.updated_at || file.created_at);
+                const formattedDate = formatDate(file.updated_at || file.created_at || file.commit?.author?.date);
+                const filePath = file.path || (currentPath === '/' ? file.name : currentPath + file.name);
                 
-                const githubPagesUrl = `https://iliabebebe.github.io/${file.path}`;
-                const githubRawUrl = `https://raw.githubusercontent.com/IliaBebebe/IliaBebebe.github.io/main/${file.path}`;
-                const githubUrl = file.html_url || `https://github.com/IliaBebebe/IliaBebebe.github.io/blob/main/${file.path}`;
-                const path = file.path || '';
+                const githubPagesUrl = isFolder ? 
+                    `https://iliabebebe.github.io/${filePath}` : 
+                    `https://iliabebebe.github.io/${filePath}`;
+                
+                const githubRawUrl = `https://raw.githubusercontent.com/IliaBebebe/IliaBebebe.github.io/main/${filePath}`;
+                const githubUrl = file.html_url || `https://github.com/IliaBebebe/IliaBebebe.github.io/blob/main/${filePath}`;
                 
                 return `
                     <tr>
                         <td>
                             <div class="file-item" 
-                                 data-path="${path}" 
+                                 data-path="${filePath}" 
                                  data-url="${githubPagesUrl}" 
                                  data-download="${githubRawUrl}"
                                  data-github="${githubUrl}"
@@ -1344,7 +1455,7 @@
                                     <i class="fas fa-${isFolder ? 'folder' : getFileIcon(file.name)}"></i>
                                 </div>
                                 <div>
-                                    <div class="file-name" onclick="${isFolder ? `navigateTo('${file.path}')` : `openFile('${githubPagesUrl}')`}" oncontextmenu="showContextMenu(event, this)">
+                                    <div class="file-name" onclick="${isFolder ? `navigateTo('${filePath}')` : `openFile('${githubPagesUrl}')`}" oncontextmenu="showContextMenu(event, this)">
                                         ${file.name}
                                     </div>
                                     ${!isFolder ? `<div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">${getFileExtension(file.name)}</div>` : ''}
@@ -1355,13 +1466,15 @@
                         <td class="file-date">${formattedDate}</td>
                         <td>
                             <div class="file-actions">
-                                <button class="action-btn" title="Копировать URL" onclick="copyFileUrlFromButton('${githubPagesUrl}', '${file.name}')">
+                                <button class="action-btn" title="Копировать URL" onclick="event.stopPropagation(); copyFileUrlFromButton('${githubPagesUrl}', '${file.name}')">
                                     <i class="fas fa-link"></i>
                                 </button>
-                                <button class="action-btn" title="Скачать" onclick="${isFolder ? '' : `downloadFile('${githubRawUrl}')`}">
+                                ${!isFolder ? `
+                                <button class="action-btn" title="Скачать" onclick="event.stopPropagation(); downloadFile('${githubRawUrl}', '${file.name}')">
                                     <i class="fas fa-download"></i>
                                 </button>
-                                <button class="action-btn" title="Информация" onclick="showFileInfo(
+                                ` : ''}
+                                <button class="action-btn" title="Информация" onclick="event.stopPropagation(); showFileInfo(
                                     '${file.name}', 
                                     ${file.size || 0}, 
                                     '${formattedDate}', 
@@ -1380,29 +1493,33 @@
             // Mobile version
             mobileList.innerHTML = filesData.map(file => {
                 const isFolder = file.type === 'dir';
-                const formattedDate = formatDate(file.updated_at || file.created_at);
+                const formattedDate = formatDate(file.updated_at || file.created_at || file.commit?.author?.date);
+                const filePath = file.path || (currentPath === '/' ? file.name : currentPath + file.name);
                 
-                const githubPagesUrl = `https://iliabebebe.github.io/${file.path}`;
-                const githubRawUrl = `https://raw.githubusercontent.com/IliaBebebe/IliaBebebe.github.io/main/${file.path}`;
-                const githubUrl = file.html_url || `https://github.com/IliaBebebe/IliaBebebe.github.io/blob/main/${file.path}`;
-                const path = file.path || '';
+                const githubPagesUrl = isFolder ? 
+                    `https://iliabebebe.github.io/${filePath}` : 
+                    `https://iliabebebe.github.io/${filePath}`;
+                
+                const githubRawUrl = `https://raw.githubusercontent.com/IliaBebebe/IliaBebebe.github.io/main/${filePath}`;
+                const githubUrl = file.html_url || `https://github.com/IliaBebebe/IliaBebebe.github.io/blob/main/${filePath}`;
                 
                 return `
                     <div class="mobile-file-item" 
-                         data-path="${path}" 
+                         data-path="${filePath}" 
                          data-url="${githubPagesUrl}" 
                          data-download="${githubRawUrl}"
                          data-github="${githubUrl}"
                          data-name="${file.name}" 
                          data-size="${file.size || 0}" 
                          data-date="${formattedDate}" 
-                         data-type="${file.type}">
+                         data-type="${file.type}"
+                         onclick="${isFolder ? `navigateTo('${filePath}')` : `openFile('${githubPagesUrl}')`}">
                         <div class="mobile-file-header">
                             <div class="mobile-file-icon ${isFolder ? 'folder-icon' : 'file-icon-default'}">
                                 <i class="fas fa-${isFolder ? 'folder' : getFileIcon(file.name)}"></i>
                             </div>
                             <div class="mobile-file-info">
-                                <div class="mobile-file-name" onclick="${isFolder ? `navigateTo('${file.path}')` : `openFile('${githubPagesUrl}')`}">
+                                <div class="mobile-file-name">
                                     ${file.name}
                                 </div>
                                 <div class="mobile-file-details">
@@ -1412,13 +1529,13 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mobile-file-actions">
+                        <div class="mobile-file-actions" onclick="event.stopPropagation()">
                             <button class="mobile-action-btn" onclick="copyFileUrlFromButton('${githubPagesUrl}', '${file.name}')">
                                 <i class="fas fa-link"></i>
                                 <span>Копировать</span>
                             </button>
                             ${!isFolder ? `
-                            <button class="mobile-action-btn" onclick="downloadFile('${githubRawUrl}')">
+                            <button class="mobile-action-btn" onclick="downloadFile('${githubRawUrl}', '${file.name}')">
                                 <i class="fas fa-download"></i>
                                 <span>Скачать</span>
                             </button>
@@ -1440,27 +1557,52 @@
             }).join('');
         }
 
-        // Форматирование даты
+        // Форматирование даты - исправленная версия
         function formatDate(dateString) {
             if (!dateString) return 'Дата неизвестна';
             
             try {
+                // GitHub API возвращает даты в формате ISO 8601
                 const date = new Date(dateString);
                 if (isNaN(date.getTime())) {
                     return 'Некорректная дата';
                 }
                 
-                return date.toLocaleDateString('ru-RU', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
+                // Проверяем, есть ли время в дате
+                const hasTime = dateString.includes('T') && dateString.includes(':');
+                
+                if (hasTime) {
+                    return date.toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }).replace(' г.', '');
+                } else {
+                    return date.toLocaleDateString('ru-RU', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    }).replace(' г.', '');
+                }
             } catch (error) {
                 console.error('Ошибка форматирования даты:', error, dateString);
                 return 'Дата неизвестна';
             }
+        }
+
+        // Обновление даты последнего обновления
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('last-updated').textContent = 
+                now.toLocaleDateString('ru-RU', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
         }
 
         // Показать контекстное меню (только для десктопа)
@@ -1483,8 +1625,23 @@
                     path: fileItem.dataset.path
                 };
                 
-                contextMenu.style.top = `${event.clientY}px`;
-                contextMenu.style.left = `${event.clientX}px`;
+                // Позиционируем меню так, чтобы оно не выходило за пределы экрана
+                let left = event.clientX;
+                let top = event.clientY;
+                
+                const menuWidth = 180;
+                const menuHeight = 200;
+                
+                if (left + menuWidth > window.innerWidth) {
+                    left = window.innerWidth - menuWidth;
+                }
+                
+                if (top + menuHeight > window.innerHeight) {
+                    top = window.innerHeight - menuHeight;
+                }
+                
+                contextMenu.style.top = `${top}px`;
+                contextMenu.style.left = `${left}px`;
                 contextMenu.classList.add('show');
             }
         }
@@ -1510,7 +1667,7 @@
 
         function downloadFileContext() {
             if (currentContextFile && currentContextFile.downloadUrl && currentContextFile.type !== 'dir') {
-                downloadFile(currentContextFile.downloadUrl);
+                downloadFile(currentContextFile.downloadUrl, currentContextFile.name);
                 hideContextMenu();
             }
         }
@@ -1553,6 +1710,8 @@
                 // Fallback для старых браузеров
                 const textArea = document.createElement('textarea');
                 textArea.value = url;
+                textArea.style.position = 'fixed';
+                textArea.style.opacity = '0';
                 document.body.appendChild(textArea);
                 textArea.select();
                 
@@ -1569,19 +1728,43 @@
 
         // Навигация по папкам
         function navigateTo(path) {
-            currentPath = path === '/' ? '/' : '/' + path + '/';
+            // Нормализация пути
+            if (path === '/' || path === '') {
+                currentPath = '/';
+            } else {
+                // Убедимся, что путь начинается с / и не заканчивается им (кроме корня)
+                currentPath = path.startsWith('/') ? path : '/' + path;
+                if (!currentPath.endsWith('/')) {
+                    currentPath += '/';
+                }
+            }
             loadFiles(currentPath);
         }
 
         // Обновление breadcrumbs
         function updateBreadcrumbs(path) {
             const breadcrumbs = document.getElementById('breadcrumbs');
-            const segments = path.split('/').filter(segment => segment);
+            
+            // Обработка корневого пути
+            if (path === '/') {
+                breadcrumbs.innerHTML = `
+                    <li class="breadcrumb-item active">
+                        <a href="#" onclick="return false;">
+                            <i class="fas fa-home"></i> Корень
+                        </a>
+                    </li>
+                `;
+                return;
+            }
+            
+            // Убираем начальный и конечный слэши
+            const cleanPath = path.replace(/^\/|\/$/g, '');
+            const segments = cleanPath.split('/').filter(segment => segment);
             
             let html = `
                 <li class="breadcrumb-item">
                     <a href="#" onclick="navigateTo('/')">
-                        <i class="fas fa-home"></i>
+                        <i class="fas fa-home"></i> Корень
                     </a>
                 </li>
             `;
@@ -1615,7 +1798,7 @@
             document.getElementById('total-files').textContent = fileCount;
             document.getElementById('total-folders').textContent = folders;
             document.getElementById('total-size').textContent = formatFileSize(totalSize);
-            document.getElementById('last-updated').textContent = new Date().toLocaleString('ru-RU');
+            updateLastUpdated();
         }
 
         // Вспомогательные функции
@@ -1646,25 +1829,31 @@
                 ico: 'file-image',
                 webp: 'file-image',
                 avif: 'file-image',
-                mp4: 'file-video',
                 webm: 'file-video',
                 mov: 'file-video',
-                avi: 'file-video'
+                avi: 'file-video',
+                mkv: 'file-video'
             };
             return icons[ext] || 'file';
         }
 
         function getFileExtension(filename) {
             const ext = filename.split('.').pop().toUpperCase();
-            return ext || 'ФАЙЛ';
+            return ext && ext.length < 10 ? ext : 'ФАЙЛ';
         }
 
         function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Б';
+            if (bytes === 0 || !bytes) return '0 Б';
             const k = 1024;
             const sizes = ['Б', 'КБ', 'МБ', 'ГБ', 'ТБ'];
             const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            const size = bytes / Math.pow(k, i);
+            
+            // Для маленьких размеров показываем без дробной части
+            if (i === 0) return Math.round(size) + ' ' + sizes[i];
+            
+            // Для больших размеров показываем с двумя знаками после запятой
+            return size.toFixed(2) + ' ' + sizes[i];
         }
 
         // Работа с файлами
@@ -1672,8 +1861,15 @@
             window.open(url, '_blank');
         }
 
-        function downloadFile(url) {
-            window.open(url, '_blank');
+        function downloadFile(url, filename) {
+            // Используем anchor для скачивания с правильным именем файла
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename || 'download';
+            a.target = '_blank';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
 
         function showFileInfo(name, size, date, type, pagesUrl = '', rawUrl = '', githubUrl = '') {
@@ -1681,44 +1877,60 @@
             const fileType = type === 'dir' ? 'Папка' : 'Файл';
             
             let infoHtml = `
-                <p><strong>Имя:</strong> ${name}</p>
-                <p><strong>Тип:</strong> ${fileType}</p>
+                <div style="margin-bottom: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1rem;">
+                        <div class="file-icon ${type === 'dir' ? 'folder-icon' : 'file-icon-default'}" style="width: 48px; height: 48px;">
+                            <i class="fas fa-${type === 'dir' ? 'folder' : getFileIcon(name)}" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 4px;">${name}</h4>
+                            <p style="color: var(--text-secondary); font-size: 0.875rem;">${fileType}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            infoHtml += `
+                <div style="background: var(--hover-color); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                    <p style="margin-bottom: 8px;"><strong>Имя:</strong> ${name}</p>
+                    <p style="margin-bottom: 8px;"><strong>Тип:</strong> ${fileType}</p>
             `;
             
             if (type !== 'dir') {
                 infoHtml += `
-                    <p><strong>Размер:</strong> ${formatFileSize(size)}</p>
-                    <p><strong>Расширение:</strong> ${getFileExtension(name)}</p>
+                    <p style="margin-bottom: 8px;"><strong>Размер:</strong> ${formatFileSize(size)}</p>
+                    <p style="margin-bottom: 8px;"><strong>Расширение:</strong> ${getFileExtension(name)}</p>
                 `;
             }
             
             infoHtml += `
-                <p><strong>Дата изменения:</strong> ${date}</p>
+                    <p><strong>Дата изменения:</strong> ${date}</p>
+                </div>
             `;
             
             if (pagesUrl) {
                 infoHtml += `
-                    <p><strong>GitHub Pages URL:</strong></p>
+                    <p style="margin-bottom: 6px; font-weight: 500;"><strong>GitHub Pages URL:</strong></p>
                     <div class="url-box">${pagesUrl}</div>
                 `;
             }
             
             if (githubUrl) {
                 infoHtml += `
-                    <p><strong>GitHub URL:</strong></p>
+                    <p style="margin-bottom: 6px; font-weight: 500; margin-top: 1rem;"><strong>GitHub URL:</strong></p>
                     <div class="url-box">${githubUrl}</div>
                 `;
             }
             
             if (rawUrl && type !== 'dir') {
                 infoHtml += `
-                    <p><strong>Raw URL (скачивание):</strong></p>
+                    <p style="margin-bottom: 6px; font-weight: 500; margin-top: 1rem;"><strong>Raw URL (скачивание):</strong></p>
                     <div class="url-box">${rawUrl}</div>
                 `;
             }
             
             infoHtml += `
-                <div class="copy-buttons">
+                <div class="copy-buttons" style="margin-top: 1.5rem;">
             `;
             
             if (pagesUrl) {
@@ -1822,6 +2034,27 @@
             const toast = document.getElementById('toast');
             toast.classList.remove('show');
         }
+
+        // Проверка установки как PWA
+        function checkPWA() {
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                console.log('Запущено как PWA');
+                document.body.classList.add('pwa-mode');
+            }
+        }
+
+        // Инициализация PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').catch(error => {
+                    console.log('ServiceWorker регистрация не удалась:', error);
+                });
+            });
+        }
+
+        // Проверяем при загрузке
+        window.addEventListener('DOMContentLoaded', checkPWA);
+        window.addEventListener('load', checkPWA);
     </script>
 </body>
 </html>
