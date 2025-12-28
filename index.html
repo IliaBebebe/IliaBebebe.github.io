@@ -17,6 +17,8 @@
             --primary-color: #2d5af1;
             --primary-dark: #1e40af;
             --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
             --bg-color: #f8fafc;
             --card-color: #ffffff;
             --text-primary: #1e293b;
@@ -113,7 +115,7 @@
         .stat-item {
             text-align: center;
             flex: 1;
-            min-width: 0; /* Для корректного обрезания текста */
+            min-width: 0;
         }
 
         .stat-value {
@@ -276,6 +278,16 @@
             color: white;
         }
 
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
         .btn-text {
             display: none;
         }
@@ -284,6 +296,20 @@
             .btn-text {
                 display: inline;
             }
+        }
+
+        /* Access badge */
+        .access-badge {
+            background: var(--warning-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            margin-left: 10px;
         }
 
         /* Sorting */
@@ -955,15 +981,104 @@
             padding: 8px 12px;
             font-size: 0.8125rem;
         }
+
+        /* Password modal */
+        .password-modal {
+            z-index: 2000;
+        }
+
+        .password-modal .modal-content {
+            max-width: 400px;
+        }
+
+        /* Checkbox list for share creation */
+        .checkbox-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px;
+            border-radius: 6px;
+            transition: background 0.2s ease;
+        }
+
+        .checkbox-item:hover {
+            background: var(--hover-color);
+        }
+
+        .checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-label {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        /* Hidden elements for shared access */
+        .hidden-for-shared {
+            display: none !important;
+        }
+
+        /* Auth status */
+        .auth-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            font-size: 0.875rem;
+        }
+
+        .auth-status i {
+            font-size: 1rem;
+        }
     </style>
 </head>
 <body>
+    <!-- Password Protection Modal -->
+    <div class="modal password-modal" id="password-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Требуется авторизация</h3>
+            </div>
+            <div class="modal-body">
+                <p>Для доступа к хранилищу введите пароль</p>
+                <div class="form-group">
+                    <input type="password" id="password-input" class="form-control" placeholder="Введите пароль" autocomplete="current-password">
+                </div>
+                <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 1rem;">
+                    <i class="fas fa-info-circle"></i> Этот пароль хранится в вашем браузере
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="checkPassword()">Войти</button>
+            </div>
+        </div>
+    </div>
+
     <header class="header">
         <div class="container">
             <div class="header-content">
                 <div class="logo">
                     <i class="fas fa-cloud"></i>
                     <span>Cloud Storage</span>
+                    <div class="auth-status" id="auth-status">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Авторизован</span>
+                    </div>
                 </div>
                 <div class="stats">
                     <div class="stat-item">
@@ -983,10 +1098,10 @@
         </div>
     </header>
 
-    <main class="container">
+    <main class="container" id="main-content" style="display: none;">
         <nav class="breadcrumbs">
             <ol class="breadcrumb-list" id="breadcrumbs"></ol>
-            <a href="https://github.com/IliaBebebe/IliaBebebe.github.io/" class="repo-link" target="_blank">
+            <a href="https://github.com/IliaBebebe/IliaBebebe.github.io/" class="repo-link hidden-for-shared" target="_blank" id="github-repo-link">
                 <i class="fab fa-github"></i>
                 <span>GitHub</span>
             </a>
@@ -1000,7 +1115,7 @@
                 </div>
             </div>
             <div class="actions">
-                <button class="btn btn-primary" onclick="uploadFile()">
+                <button class="btn btn-primary hidden-for-shared" onclick="uploadFile()">
                     <i class="fas fa-upload"></i>
                     <span class="btn-text">Загрузить</span>
                 </button>
@@ -1008,9 +1123,16 @@
                     <i class="fas fa-sync-alt"></i>
                     <span class="btn-text">Обновить</span>
                 </button>
-                <button class="btn btn-outline" onclick="window.open('https://github.com/IliaBebebe/IliaBebebe.github.io/', '_blank')">
+                <button class="btn btn-warning hidden-for-shared" onclick="showShareModal()">
+                    <i class="fas fa-share-alt"></i>
+                    <span class="btn-text">Создать ссылку</span>
+                </button>
+                <button class="btn btn-outline hidden-for-shared" onclick="window.open('https://github.com/IliaBebebe/IliaBebebe.github.io/', '_blank')">
                     <i class="fab fa-github"></i>
                     <span class="btn-text">Репозиторий</span>
+                </button>
+                <button class="btn btn-outline" onclick="logout()" title="Выйти">
+                    <i class="fas fa-sign-out-alt"></i>
                 </button>
             </div>
         </div>
@@ -1118,6 +1240,68 @@
         </div>
     </div>
 
+    <!-- Модальное окно создания ссылки -->
+    <div class="modal" id="share-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Создать приватную ссылку</h3>
+                <button class="modal-close" onclick="closeModal('share-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Выберите папки/файлы для доступа:</label>
+                    <div class="checkbox-list" id="share-checkbox-list">
+                        <!-- Checkboxes will be loaded here -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Срок действия ссылки (дней):</label>
+                    <input type="number" id="share-expire-days" class="form-control" value="30" min="1" max="365">
+                </div>
+                <div class="form-group">
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 1rem;">
+                        <i class="fas fa-info-circle"></i> Ссылка предоставляет доступ только к выбранным элементам
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('share-modal')">Отмена</button>
+                <button class="btn btn-warning" onclick="generateShareLink()">Создать ссылку</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно сгенерированной ссылки -->
+    <div class="modal" id="share-result-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Приватная ссылка создана</h3>
+                <button class="modal-close" onclick="closeModal('share-result-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Ссылка предоставляет доступ к выбранным папкам/файлам:</p>
+                <div class="url-box" id="share-result-url"></div>
+                <div class="form-group">
+                    <label>Доступные элементы:</label>
+                    <div id="share-result-items" style="max-height: 200px; overflow-y: auto; margin-top: 10px; padding: 10px; background: var(--hover-color); border-radius: 6px;">
+                        <!-- Items will be listed here -->
+                    </div>
+                </div>
+                <div class="copy-buttons">
+                    <button class="btn btn-primary" onclick="copyShareLink()">
+                        <i class="fas fa-copy"></i> Копировать ссылку
+                    </button>
+                    <button class="btn btn-outline" onclick="testShareLink()">
+                        <i class="fas fa-external-link-alt"></i> Проверить ссылку
+                    </button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeModal('share-result-modal')">Закрыть</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast уведомления -->
     <div class="toast" id="toast">
         <i class="fas fa-check-circle toast-icon"></i>
@@ -1150,26 +1334,36 @@
     <footer class="footer">
         <div class="container">
             <p>Хранилище на GitHub Pages • 
-                <a href="https://github.com/IliaBebebe/IliaBebebe.github.io/" target="_blank">
+                <a href="https://github.com/IliaBebebe/IliaBebebe.github.io/" target="_blank" class="hidden-for-shared">
                     GitHub репозиторий
                 </a>
+                <span id="shared-access-info" style="display: none;">
+                    • <i class="fas fa-link"></i> Ограниченный доступ
+                </span>
             </p>
             <p>Последнее обновление: <span id="last-updated">загрузка...</span></p>
         </div>
     </footer>
 
     <script>
+        const PASSWORD = "Жопа";
+        const SHARE_KEY_PREFIX = "share_";
+        const SHARED_LINKS_STORAGE_KEY = "cloud_storage_shared_links";
+        
         let currentPath = '/';
         let filesData = [];
         let currentContextFile = null;
         let currentSort = 'type-asc';
         let sortDirection = { name: null, size: null, date: null };
+        let isSharedAccess = false;
+        let currentShareConfig = null;
+        let selectedItemsForShare = [];
+        let allFilesForShare = [];
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
-            loadFiles();
+            checkAuthAndInitialize();
             
-            // Закрытие контекстного меню при клике вне его
             document.addEventListener('click', (e) => {
                 const contextMenu = document.getElementById('context-menu');
                 if (contextMenu && !contextMenu.contains(e.target)) {
@@ -1180,7 +1374,111 @@
             document.getElementById('sort-select').value = currentSort;
         });
 
-        // Загрузка списка файлов
+        // Проверка авторизации и инициализация
+        function checkAuthAndInitialize() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const shareId = urlParams.get('share');
+            
+            // Проверка на shared доступ
+            if (shareId) {
+                loadSharedAccess(shareId);
+                return;
+            }
+            
+            // Проверка авторизации для полного доступа
+            const isAuthenticated = localStorage.getItem('cloud_storage_authenticated') === 'true';
+            
+            if (!isAuthenticated) {
+                showPasswordModal();
+            } else {
+                initializeFullAccess();
+            }
+        }
+
+        // Показать модальное окно пароля
+        function showPasswordModal() {
+            document.getElementById('password-modal').classList.add('show');
+        }
+
+        // Скрыть модальное окно пароля
+        function hidePasswordModal() {
+            document.getElementById('password-modal').classList.remove('show');
+        }
+
+        // Проверка пароля
+        function checkPassword() {
+            const passwordInput = document.getElementById('password-input');
+            const password = passwordInput.value;
+            
+            if (password === PASSWORD) {
+                localStorage.setItem('cloud_storage_authenticated', 'true');
+                hidePasswordModal();
+                initializeFullAccess();
+                showToast('Авторизация успешна');
+            } else {
+                showToast('Неверный пароль', 'error');
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+
+        // Выход из системы
+        function logout() {
+            localStorage.removeItem('cloud_storage_authenticated');
+            showToast('Вы вышли из системы');
+            setTimeout(() => {
+                window.location.href = window.location.pathname;
+            }, 1000);
+        }
+
+        // Инициализация полного доступа
+        function initializeFullAccess() {
+            document.getElementById('main-content').style.display = 'block';
+            document.getElementById('auth-status').style.display = 'flex';
+            loadFiles();
+        }
+
+        // Загрузка shared доступа
+        function loadSharedAccess(shareId) {
+            const savedLinks = JSON.parse(localStorage.getItem(SHARED_LINKS_STORAGE_KEY) || '{}');
+            const shareConfig = savedLinks[shareId];
+            
+            if (!shareConfig) {
+                showToast('Ссылка недействительна или срок истек', 'error');
+                setTimeout(() => {
+                    window.location.href = window.location.pathname;
+                }, 2000);
+                return;
+            }
+            
+            // Проверка срока действия
+            if (shareConfig.expires && new Date(shareConfig.expires) < new Date()) {
+                delete savedLinks[shareId];
+                localStorage.setItem(SHARED_LINKS_STORAGE_KEY, JSON.stringify(savedLinks));
+                showToast('Срок действия ссылки истек', 'error');
+                setTimeout(() => {
+                    window.location.href = window.location.pathname;
+                }, 2000);
+                return;
+            }
+            
+            isSharedAccess = true;
+            currentShareConfig = shareConfig;
+            
+            // Скрываем элементы для shared доступа
+            document.querySelectorAll('.hidden-for-shared').forEach(el => {
+                el.style.display = 'none';
+            });
+            
+            // Показываем информацию о shared доступе
+            document.getElementById('shared-access-info').style.display = 'inline';
+            document.getElementById('auth-status').style.display = 'none';
+            
+            document.getElementById('main-content').style.display = 'block';
+            loadFiles();
+        }
+
+        // Загрузка списка файлов с учетом shared доступа
         async function loadFiles(path = '/') {
             try {
                 showLoading();
@@ -1191,18 +1489,75 @@
                 }
                 
                 const data = await response.json();
-                filesData = data;
+                
+                // Фильтрация для shared доступа
+                if (isSharedAccess && currentShareConfig) {
+                    filesData = filterFilesForSharedAccess(data, path);
+                } else {
+                    filesData = data;
+                }
                 
                 sortFiles(currentSort);
                 updateUI();
                 updateBreadcrumbs(path);
-                updateStats(data);
+                updateStats(filesData);
                 hideLoading();
+                
+                // Сохраняем для использования в модальном окне создания ссылки
+                if (!isSharedAccess) {
+                    allFilesForShare = getAllFilesRecursive(data);
+                }
             } catch (error) {
                 console.error('Ошибка:', error);
                 showToast('Не удалось загрузить файлы', 'error');
                 hideLoading();
             }
+        }
+
+        // Фильтрация файлов для shared доступа
+        function filterFilesForSharedAccess(files, currentPath) {
+            if (!currentShareConfig || !currentShareConfig.items) return [];
+            
+            return files.filter(file => {
+                const filePath = file.type === 'dir' ? file.path + '/' : file.path;
+                
+                // Проверяем, разрешен ли доступ к этому файлу/папке
+                return currentShareConfig.items.some(item => {
+                    if (item.endsWith('/')) {
+                        // Это папка - проверяем, находится ли текущий путь внутри этой папки
+                        return filePath.startsWith(item) || currentPath.startsWith(item);
+                    } else {
+                        // Это файл - точное совпадение
+                        return filePath === item;
+                    }
+                });
+            });
+        }
+
+        // Получение всех файлов рекурсивно
+        function getAllFilesRecursive(files, basePath = '') {
+            let allFiles = [];
+            
+            files.forEach(file => {
+                const filePath = basePath ? `${basePath}/${file.name}` : file.name;
+                
+                if (file.type === 'dir') {
+                    // Для папок добавляем с завершающим слэшем
+                    allFiles.push({
+                        type: 'dir',
+                        path: filePath + '/',
+                        name: file.name
+                    });
+                } else {
+                    allFiles.push({
+                        type: 'file',
+                        path: filePath,
+                        name: file.name
+                    });
+                }
+            });
+            
+            return allFiles;
         }
 
         // Сортировка файлов
@@ -1346,6 +1701,7 @@
                                 <div>
                                     <div class="file-name" onclick="${isFolder ? `navigateTo('${file.path}')` : `openFile('${githubPagesUrl}')`}" oncontextmenu="showContextMenu(event, this)">
                                         ${file.name}
+                                        ${isSharedAccess ? '<span class="access-badge"><i class="fas fa-share-alt"></i> Shared</span>' : ''}
                                     </div>
                                     ${!isFolder ? `<div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 2px;">${getFileExtension(file.name)}</div>` : ''}
                                 </div>
@@ -1404,6 +1760,7 @@
                             <div class="mobile-file-info">
                                 <div class="mobile-file-name" onclick="${isFolder ? `navigateTo('${file.path}')` : `openFile('${githubPagesUrl}')`}">
                                     ${file.name}
+                                    ${isSharedAccess ? '<span class="access-badge" style="font-size: 0.7rem; padding: 2px 6px;"><i class="fas fa-share-alt"></i></span>' : ''}
                                 </div>
                                 <div class="mobile-file-details">
                                     <span class="mobile-file-type">${isFolder ? 'Папка' : getFileExtension(file.name)}</span>
@@ -1440,7 +1797,7 @@
             }).join('');
         }
 
-        // Форматирование даты
+        // Форматирование даты (ИСПРАВЛЕННАЯ ФУНКЦИЯ)
         function formatDate(dateString) {
             if (!dateString) return 'Дата неизвестна';
             
@@ -1821,6 +2178,117 @@
         function hideToast() {
             const toast = document.getElementById('toast');
             toast.classList.remove('show');
+        }
+
+        // Создание приватных ссылок
+        function showShareModal() {
+            // Загружаем список всех файлов для выбора
+            loadFilesForShareSelection();
+            showModal('share-modal');
+        }
+
+        function loadFilesForShareSelection() {
+            const checkboxList = document.getElementById('share-checkbox-list');
+            
+            if (allFilesForShare.length === 0) {
+                checkboxList.innerHTML = '<p style="text-align: center; color: var(--text-secondary);">Нет файлов для выбора</p>';
+                return;
+            }
+            
+            let html = '';
+            allFilesForShare.forEach((file, index) => {
+                const isFolder = file.type === 'dir';
+                const displayPath = file.path.endsWith('/') ? file.path.slice(0, -1) : file.path;
+                
+                html += `
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="share-item-${index}" data-path="${file.path}" onchange="updateSelectedItems(this)">
+                        <label class="checkbox-label" for="share-item-${index}">
+                            <div class="file-icon ${isFolder ? 'folder-icon' : 'file-icon-default'}" style="width: 24px; height: 24px;">
+                                <i class="fas fa-${isFolder ? 'folder' : getFileIcon(file.name)}" style="font-size: 0.8rem;"></i>
+                            </div>
+                            <span>${displayPath}</span>
+                        </label>
+                    </div>
+                `;
+            });
+            
+            checkboxList.innerHTML = html;
+            selectedItemsForShare = [];
+        }
+
+        function updateSelectedItems(checkbox) {
+            const path = checkbox.dataset.path;
+            
+            if (checkbox.checked) {
+                if (!selectedItemsForShare.includes(path)) {
+                    selectedItemsForShare.push(path);
+                }
+            } else {
+                const index = selectedItemsForShare.indexOf(path);
+                if (index > -1) {
+                    selectedItemsForShare.splice(index, 1);
+                }
+            }
+        }
+
+        function generateShareLink() {
+            if (selectedItemsForShare.length === 0) {
+                showToast('Выберите хотя бы один файл или папку', 'error');
+                return;
+            }
+            
+            const expireDays = parseInt(document.getElementById('share-expire-days').value) || 30;
+            const expires = new Date();
+            expires.setDate(expires.getDate() + expireDays);
+            
+            // Генерируем уникальный ID для ссылки
+            const shareId = 'share_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            
+            // Создаем конфигурацию доступа
+            const shareConfig = {
+                id: shareId,
+                items: [...selectedItemsForShare],
+                created: new Date().toISOString(),
+                expires: expires.toISOString(),
+                expiresDays: expireDays
+            };
+            
+            // Сохраняем в localStorage
+            const savedLinks = JSON.parse(localStorage.getItem(SHARED_LINKS_STORAGE_KEY) || '{}');
+            savedLinks[shareId] = shareConfig;
+            localStorage.setItem(SHARED_LINKS_STORAGE_KEY, JSON.stringify(savedLinks));
+            
+            // Создаем URL
+            const baseUrl = window.location.origin + window.location.pathname;
+            const shareUrl = `${baseUrl}?share=${shareId}`;
+            
+            // Показываем результат
+            document.getElementById('share-result-url').textContent = shareUrl;
+            
+            // Показываем список выбранных элементов
+            const itemsList = document.getElementById('share-result-items');
+            let itemsHtml = '<ul style="margin: 0; padding-left: 20px;">';
+            selectedItemsForShare.forEach(item => {
+                const isFolder = item.endsWith('/');
+                const displayName = isFolder ? item.slice(0, -1) : item;
+                itemsHtml += `<li><i class="fas fa-${isFolder ? 'folder' : 'file'}"></i> ${displayName}</li>`;
+            });
+            itemsHtml += '</ul>';
+            itemsList.innerHTML = itemsHtml;
+            
+            closeModal('share-modal');
+            showModal('share-result-modal');
+        }
+
+        function copyShareLink() {
+            const shareUrl = document.getElementById('share-result-url').textContent;
+            copyToClipboardDirect(shareUrl, 'Приватная ссылка');
+        }
+
+        function testShareLink() {
+            const shareUrl = document.getElementById('share-result-url').textContent;
+            window.open(shareUrl, '_blank');
         }
     </script>
 </body>
